@@ -1,4 +1,5 @@
 import cv2 as cv
+import os
 
 
 def save_img(fname, img):
@@ -6,6 +7,10 @@ def save_img(fname, img):
 
 
 def save_video_frame(vid_name, target_folder):
+    if not os.path.exists(target_folder):
+        os.mkdir(target_folder)
+    assert os.path.exists(target_folder)
+
     vidcap = cv.VideoCapture(vid_name)
     success, image = vidcap.read()
     count = 0
