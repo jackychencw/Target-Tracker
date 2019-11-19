@@ -1,5 +1,7 @@
 # csc420-target-tracker
 
+Members for this project: Yue Wang, Jue Want, Ziqi Chen
+
 Tasks for this project
 
 1.	Detect faces in the video
