@@ -54,4 +54,5 @@ def construct_video(src_folder, target_folder, vid_out):
 
 
 if __name__ == "__main__":
+    # save_video_frame('./test_vid/test.mp4', './test_vid_frames')
     # construct_video("./test_vid_frames", "./out", "project.avi")
