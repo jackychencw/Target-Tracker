@@ -1,6 +1,6 @@
 # csc420-target-tracker
 
-Members for this project: Yue Wang, Jue Want, Ziqi Chen
+Members for this project: Yue Wang, Jue Wang, Ziqi Chen
 
 Tasks for this project
 
