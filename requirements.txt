@@ -1,0 +1,4 @@
+# All python dependencies
+
+opencv-contrib-python
+numpy
