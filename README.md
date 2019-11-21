@@ -18,8 +18,8 @@ Tasks for this project
 
 INSTRUCTION
 
-To install requirments:\\
-  using pip:\\
-    pip install -R requirements.txt\\
-  using conda:\\
-    conda install --file conda-requirements.txt\\
+To install requirments:<br />
+  using pip:<br />
+    pip install -R requirements.txt<br />
+  using conda:<br />
+    conda install --file conda-requirements.txt<br />
