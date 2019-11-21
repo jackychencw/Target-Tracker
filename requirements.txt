@@ -3,3 +3,5 @@
 opencv-contrib-python
 numpy
 glob3
+progressbar
+imutils
