@@ -15,3 +15,11 @@ Tasks for this project
 5.	User can provide a face that to be tracked, and if no such input is provided the application simply track all the faces appeared in the video
 
 6.	If such input is provided, other than face detection we also perform a motion detection on the target and show a path for where the target has traveled
+
+INSTRUCTION
+
+To install requirments:
+  using pip:
+    pip install -R requirements.txt
+  using conda:
+    conda install --file conda-requirements.txt
