@@ -2,6 +2,8 @@ import cv2 as cv
 import os
 import glob
 import numpy as np
+from imutils.video import count_frames
+import progressbar
 
 
 def save_img(fname, img):
@@ -14,12 +16,16 @@ def load_img(fname):
 
 
 def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=True):
-    print("Cutting video to frames...")
     if not os.path.exists(target_folder):
         os.mkdir(target_folder)
     assert os.path.exists(target_folder)
-
+    num_frames = count_frames(vid_name, override=True)
     vidcap = cv.VideoCapture(vid_name)
+
+    print("Loading frames...")
+    bar = progressbar.ProgressBar(maxval=num_frames,
+                                  widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    bar.start()
     success, image = vidcap.read()
     if not use_memory:
         count = 0
@@ -28,6 +34,7 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
             save_img(dest, image)
             success, image = vidcap.read()
             count += 1
+            bar.update(count + 1)
         print("Done saving images in local drive")
         return None
     else:
@@ -36,9 +43,9 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
         while success:
             success, image = vidcap.read()
             if image is not None:
-                print(count)
                 image_list.append(image)
                 count += 1
+                bar.update(count + 1)
         result = image_list
         # result = np.asarray(image_list)
         print("Done saving image in memory")
@@ -50,15 +57,18 @@ def construct_video_from_memory(images, target_folder, vid_out):
         os.mkdir(target_folder)
     assert os.path.exists(target_folder)
     print("Constructing video ...")
+    num_imgs = len(images)
     height, width, layers = images[0].shape
     size = (width, height)
-    print(size)
     out_path = f'{target_folder}/{vid_out}'
     out = cv.VideoWriter(
         out_path, cv.VideoWriter_fourcc(*'DIVX'), 15, size)
+    bar = progressbar.ProgressBar(maxval=num_imgs,
+                                  widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    bar.start()
     for i in range(len(images)):
-        print(i)
         out.write(images[i])
+        bar.update(i+1)
     out.release()
     print("Done constructing video!")
 
@@ -90,7 +100,7 @@ def construct_video(src_folder, target_folder, vid_out):
 
 
 if __name__ == "__main__":
-    vid_images = save_video_frame('./test_vid/video.mp4')
+    vid_images = save_video_frame('./test_vid/test2.mp4')
     construct_video_from_memory(vid_images, './out', 'testproject.avi')
     # construct_video("./test_vid_processed_frames", "./out", "testproject.avi")
     None
