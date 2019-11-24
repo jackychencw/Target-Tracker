@@ -23,7 +23,7 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
     vidcap = cv.VideoCapture(vid_name)
 
     print("Loading frames...")
-    bar = progressbar.ProgressBar(maxval=num_frames,
+    bar = progressbar.ProgressBar(maxval=num_frames - 1,
                                   widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     bar.start()
     success, image = vidcap.read()
@@ -34,8 +34,8 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
             save_img(dest, image)
             success, image = vidcap.read()
             count += 1
-            bar.update(count + 1)
-        print("Done saving images in local drive")
+            bar.update(count)
+        print("\nDone saving images in local drive")
         return None
     else:
         image_list = [image]
@@ -45,10 +45,10 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
             if image is not None:
                 image_list.append(image)
                 count += 1
-                bar.update(count + 1)
+                bar.update(count)
         result = image_list
         # result = np.asarray(image_list)
-        print("Done saving image in memory")
+        print("\nDone saving image in memory")
         return result
 
 
@@ -63,14 +63,14 @@ def construct_video_from_memory(images, target_folder, vid_out):
     out_path = f'{target_folder}/{vid_out}'
     out = cv.VideoWriter(
         out_path, cv.VideoWriter_fourcc(*'DIVX'), 15, size)
-    bar = progressbar.ProgressBar(maxval=num_imgs,
+    bar = progressbar.ProgressBar(maxval=num_imgs - 1,
                                   widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     bar.start()
     for i in range(len(images)):
         out.write(images[i])
-        bar.update(i+1)
+        bar.update(i)
     out.release()
-    print("Done constructing video!")
+    print("\nDone constructing video!")
 
 
 def construct_video(src_folder, target_folder, vid_out):
