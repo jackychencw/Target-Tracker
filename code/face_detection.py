@@ -4,28 +4,77 @@ import progressbar
 from utils import *
 
 
-def face_detect(cascade_name, imgs):
-    face_cascade = cv.CascadeClassifier(cv.data.haarcascades + cascade_name)
-    num_images = len(imgs)
-    result = []
-    print("Detecting faces...")
-    bar = progressbar.ProgressBar(maxval=num_images - 1,
+patch_size = 5
+
+f = 721.537700
+px = 609.559300
+py = 172.854000
+baseline = 0.5327119288
+x1 = 685
+x2 = 804
+y1 = 181
+y2 = 258
+
+
+def load_color_image(filepath):
+    image = cv.imread(filepath)
+    return image
+
+def load_grey_scale_image(filepath):
+    image = cv.imread(filepath, 0)
+    return image
+
+left_img = load_grey_scale_image('./000020_left.jpg')
+right_img = load_grey_scale_image('./000020_right.jpg')
+right_color = load_color_image('./000020_right.jpg')
+
+def show_image(img):
+    cv.imshow("Showing image",img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+def save_image(fname, img):
+  cv.imwrite(fname, img)
+
+def ssd(patch1, patch2):
+    diff = patch1 - patch2
+    ssd = np.sum(diff**2)
+    return ssd
+
+def nc(patch1, patch2):
+    a = np.sum(patch1 * patch2)
+    b = np.sum(patch1 ** 2) * np.sum(patch2 ** 2)
+    c = a * 1./b
+    return c
+  
+def scan(x1 = x1, x2 = x2, y1 = y1, y2 = y2, left_img = left_img, right_img = right_img):
+  width_right = right_img.shape[1]
+  depth = np.zeros((y2 - y1 + 1, x2 - x1 + 1))
+  ite_num = (x2 - x1) * (y2 - y1) * (width_right - 2 * patch_size)
+  bar = progressbar.ProgressBar(maxval=ite_num+1,
                                   widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-    bar.start()
-    for i in range(num_images):
-        img = imgs[i]
-        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-        for (x, y, w, h) in faces:
-            cv.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
-        result.append(img)
-        bar.update(i)
-    print("\nDone detecting faces")
-    return result
+  bar.start()
+  count = 0
+  myobj = plt.imshow(right_color)
+  for x in range(x1, x2 + 1):
+    for y in range(y1, y2 + 1):
+      target_patch = left_img[y - patch_size: y + patch_size, x - patch_size: x + patch_size]
+      
+      scores = []
+      for x2 in range(patch_size, width_right - patch_size):
+        source_patch = right_img[y - patch_size: y + patch_size, x2 - patch_size: x2 + patch_size]
+        score = nc(source_patch, target_patch)
+        scores.append(score)
+        count += 1
+        bar.update(count)
+      fx = np.argmin(scores)
+      right_color[y, fx] = np.array([0,255,0])
+      myobj.set_data(right_color)
+      plt.draw()
+  
+      
 
-
+  
 if __name__ == "__main__":
-    classifier = 'haarcascade_frontalface_alt2.xml'
-    imgs = save_video_frame('./test_vid/test2.mp4')
-    result = face_detect(classifier, imgs)
-    construct_video_from_memory(result, './out', 'test2.avi')
+  scan()
+    
