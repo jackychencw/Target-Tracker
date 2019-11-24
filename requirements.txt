@@ -1,5 +1,7 @@
 # All python dependencies
 
-opencv-contrib-python
+opencv-python
 numpy
 glob3
+progressbar
+imutils
