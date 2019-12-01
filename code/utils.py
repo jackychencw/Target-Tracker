@@ -100,7 +100,7 @@ def construct_video(src_folder, target_folder, vid_out):
 
 
 if __name__ == "__main__":
-    vid_images = save_video_frame('./test_vid/test2.mp4')
-    construct_video_from_memory(vid_images, './out', 'testproject.avi')
+    vid_images = save_video_frame('./test_vid/test3.mp4')
+    construct_video_from_memory(vid_images, './out', 'test3.avi')
     # construct_video("./test_vid_processed_frames", "./out", "testproject.avi")
     None

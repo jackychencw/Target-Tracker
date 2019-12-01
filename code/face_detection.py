@@ -26,6 +26,6 @@ def face_detect(cascade_name, imgs):
 
 if __name__ == "__main__":
     classifier = 'haarcascade_frontalface_alt2.xml'
-    imgs = save_video_frame('./test_vid/test2.mp4')
+    imgs = save_video_frame('./test_vid/test3.mp4')
     result = face_detect(classifier, imgs)
-    construct_video_from_memory(result, './out', 'test2.avi')
+    construct_video_from_memory(result, './out', 'test3.avi')
