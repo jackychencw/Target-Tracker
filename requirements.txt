@@ -5,3 +5,5 @@ numpy
 glob3
 progressbar
 imutils
+matplotlib
+tensorflow-gpu
