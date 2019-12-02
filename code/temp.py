@@ -158,7 +158,7 @@ class Dataset:
         option = tf.data.Options()
         option.experimental_deterministic = False
 
-        ds = tf.data.Dataset.list_files(self.dataset_path + '/*.tfrecords-000')
+        ds = tf.data.Dataset.list_files(self.dataset_path + '/*')
         ds = ds.with_options(option)
         ds = ds.interleave(tf.data.TFRecordDataset, cycle_length=cycle_length,
                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
