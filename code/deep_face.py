@@ -1,7 +1,8 @@
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import tensorflow as tf
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 from matplotlib import pyplot as plt
 from os import path
