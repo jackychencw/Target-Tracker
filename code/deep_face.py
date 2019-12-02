@@ -1,7 +1,8 @@
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import tensorflow as tf
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 from matplotlib import pyplot as plt
 from os import path
@@ -10,7 +11,7 @@ from tensorflow import keras
 IMAGE_SIZE = (152, 152)
 CHANNELS = 3
 NUM_CLASSES = 8631
-TPU_WORKER = 'grpc://10.0.0.1:8470'
+# TPU_WORKER = 'grpc://10.0.0.1:8470'
 BATCH_SIZE = 1024
 LEARN_RATE = 0.01 * (BATCH_SIZE/128)
 MOMENTUM = 0.9
@@ -133,7 +134,7 @@ class Dataset:
         classl = tf.one_hot(classl, self.num_classes)
 
         image = tf.image.decode_jpeg(image, channels=3)
-        image = tf.image.resize_image_with_pad(
+        image = tf.compat.v1.image.resize_image_with_pad(
             image, self.image_size[0], self.image_size[1])
         image = tf.cast(image, tf.float32)
         image = Dataset.preprocess_image(image)
@@ -145,7 +146,7 @@ class Dataset:
             'image': tf.io.FixedLenFeature([], tf.string),
             'class': tf.io.FixedLenFeature([], tf.string)
         }
-        example = tf.parse_single_example(example, feature)
+        example = tf.io.parse_single_example(example, feature)
         return self.get_image_and_class(example['image'], example['class'])
 
     def get_dataset(self):
@@ -181,7 +182,7 @@ DATASET_PATH = './image'
 TB_PATH = './image'
 
 keras.backend.clear_session()
-TPU_WORKER = 'grpc://' + os.environ['COLAB_TPU_ADDR']
+# TPU_WORKER = 'grpc://' + os.environ['COLAB_TPU_ADDR']
 
 ...
 
