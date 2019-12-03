@@ -57,7 +57,7 @@ class DeepFace:
         if recognizer == FaceRecognizerVGG.NAME:
             self.recognizer = FaceRecognizerVGG()
         elif recognizer == FaceRecognizerResnet.NAME:
-            self.recognizer = FaceRecognizerResnet('/Users/Wangjue/Desktop/deepface/bin/db.pkl')
+            self.recognizer = FaceRecognizerResnet('./db.pkl')
 
     def blackpink(self, visualize=True):
         imgs = ['./samples/yj/yue_jue%d.jpg' % (i + 1) for i in range(7)]
