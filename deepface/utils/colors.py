@@ -1,15 +1,7 @@
-# coding=utf-8
-"""
-Provide RGB color constants and a colors dictionary with
-elements formatted: colors[colorname] = CONSTANT
-
-Reference : https://www.webucator.com/blog/2015/03/python-color-constants-module/
-"""
-
 from collections import namedtuple, OrderedDict
 
 Color = namedtuple('RGB','red, green, blue')
-colors = {} #dict of colors
+colors = {}
 
 
 class RGB(Color):
@@ -23,7 +15,6 @@ class RGB(Color):
     def tuple_one(self):
         return (self.red/255.0, self.green/255.0, self.blue/255.0)
 
-#Color Contants
 ALICEBLUE = RGB(240, 248, 255)
 ANTIQUEWHITE = RGB(250, 235, 215)
 ANTIQUEWHITE1 = RGB(255, 239, 219)

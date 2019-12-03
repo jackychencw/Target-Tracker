@@ -81,25 +81,20 @@ class FaceRecognizerResnet(FaceRecognizer):
         network = {}
 
         with tf.variable_scope('vgg2', reuse=tf.AUTO_REUSE) as scope:
-            # Building the cnn architecture:
-            # First block:
             l = tf.layers.conv2d(current, 64, (7, 7), strides=(2, 2), padding='SAME', use_bias=False, name='conv1/7x7_s2')
             l = tf.layers.batch_normalization(l, axis=3, name='conv1/7x7_s2/bn')
             l = tf.nn.relu(l)
             l = tf.layers.max_pooling2d(l, 3, 2)
 
-            # Second block:
             l = conv_block(l, [64, 64, 256], stage=2, block=1, strides=(1, 1))
             l = identity_block(l, [64, 64, 256], stage=2, block=2)
             l = identity_block(l, [64, 64, 256], stage=2, block=3)
 
-            # Third block:
             l = conv_block(l, [128, 128, 512], stage=3, block=1)
             l = identity_block(l, [128, 128, 512], stage=3, block=2)
             l = identity_block(l, [128, 128, 512], stage=3, block=3)
             l = identity_block(l, [128, 128, 512], stage=3, block=4)
 
-            # Fourth block:
             l = conv_block(l, [256, 256, 1024], stage=4, block=1)
             l = identity_block(l, [256, 256, 1024], stage=4, block=2)
             l = identity_block(l, [256, 256, 1024], stage=4, block=3)
@@ -107,12 +102,10 @@ class FaceRecognizerResnet(FaceRecognizer):
             l = identity_block(l, [256, 256, 1024], stage=4, block=5)
             l = identity_block(l, [256, 256, 1024], stage=4, block=6)
 
-            # Fifth block:
             l = conv_block(l, [512, 512, 2048], stage=5, block=1)
             l = identity_block(l, [512, 512, 2048], stage=5, block=2)
             l = identity_block(l, [512, 512, 2048], stage=5, block=3, last_relu=False)
 
-            # Final stage:
             l = tf.layers.average_pooling2d(l, 7, 1)
             l = tf.layers.flatten(l)
             network['feat'] = l
@@ -120,14 +113,12 @@ class FaceRecognizerResnet(FaceRecognizer):
             output = tf.layers.dense(l, 8631, activation=tf.nn.softmax, name='classifier')  # 8631 classes
             network['out'] = output
 
-        # Load weights:
         filename = 'rcmalli_vggface_tf_resnet50.h5'
         filepath = os.path.join(dir_path, filename)
 
         if not os.path.exists(filepath):
             raise FileNotFoundError('Weight file not found, path=%s' % filepath)
 
-        # Assign weights:
         assign_list = []
         with h5py.File(filepath, mode='r') as f:
             layers = f.attrs['layer_names']
@@ -174,14 +165,12 @@ class FaceRecognizerResnet(FaceRecognizer):
                         assign_op = kernel.assign(tf.constant(w))
                         assign_list.append(assign_op)
 
-        # Create session:
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         init = tf.global_variables_initializer()
 
         config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
         self.persistent_sess = tf.Session(config=config)
 
-        # Warm-up:
         self.persistent_sess.run(init, feed_dict={
             self.input_node: np.zeros((self.batch_size, 224, 224, 3), dtype=np.uint8)
         })

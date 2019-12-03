@@ -27,7 +27,6 @@ class FaceRecognizerVGG(FaceRecognizer):
 
         data = loadmat(filepath)
 
-        # read meta info
         meta = data['meta']
         classes = meta['classes']
         normalization = meta['normalization']
@@ -39,7 +38,6 @@ class FaceRecognizerVGG(FaceRecognizer):
 
         input_norm = tf.subtract(self.input_node, self.average_image, name='normalized_image')
 
-        # read layer info
         layers = data['layers']
         current = input_norm
         network = {}
@@ -53,7 +51,6 @@ class FaceRecognizerVGG(FaceRecognizer):
                     padding = 'SAME'
                 stride = layer[0]['stride'][0][0]
                 kernel, bias = layer[0]['weights'][0][0]
-                # kernel = np.transpose(kernel, (1, 0, 2, 3))
                 bias = np.squeeze(bias).reshape(-1)
                 conv = tf.nn.conv2d(current, tf.constant(kernel), strides=(1, stride[0], stride[0], 1), padding=padding)
                 current = tf.nn.bias_add(conv, bias)
@@ -83,7 +80,6 @@ class FaceRecognizerVGG(FaceRecognizer):
         with open(db_path, 'rb') as f:
             self.db = pickle.load(f)
 
-        # warm-up
         self.persistent_sess.run([self.network['prob'], self.network['fc7']], feed_dict={
             self.input_node: np.zeros((self.batch_size, 224, 224, 3), dtype=np.uint8)
         })
@@ -96,10 +92,8 @@ class FaceRecognizerVGG(FaceRecognizer):
         for roi in rois:
             if roi.shape[0] != self.input_hw[0] or roi.shape[1] != self.input_hw[1]:
                 new_roi = cv2.resize(roi, self.input_hw, interpolation=cv2.INTER_AREA)
-                # new_roi = cv2.cvtColor(new_roi, cv2.COLOR_BGR2RGB)
                 new_rois.append(new_roi)
             else:
-                # roi = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
                 new_rois.append(roi)
         return new_rois
 
@@ -137,7 +131,6 @@ class FaceRecognizerVGG(FaceRecognizer):
             names = [[(self.class_names[idx], prop[idx]) for idx in
                       prop.argsort()[-DeepFaceConfs.get()['recognizer']['topk']:][::-1]] for prop in probs]
         else:
-            # TODO
             names = []
             for feat in feats:
                 scores = []

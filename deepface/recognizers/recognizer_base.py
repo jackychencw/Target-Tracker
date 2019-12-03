@@ -1,6 +1,5 @@
 import abc
 
-
 class FaceRecognizer(object):
     def __str__(self):
         return self.name()

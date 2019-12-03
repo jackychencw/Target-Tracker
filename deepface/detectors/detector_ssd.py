@@ -38,16 +38,11 @@ class FaceDetectorSSD(FaceDetector):
         self.session = tf.Session(graph=self.detector, config=config)
 
     def _load_graph(self, graph_path):
-        # We load the protobuf file from the disk and parse it to retrieve the
-        # unserialized graph_def
         with tf.gfile.GFile(graph_path, "rb") as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
 
-        # Then, we import the graph_def into a new Graph and return it
         with tf.Graph().as_default() as graph:
-            # The name var will prefix every op/nodes in your graph
-            # Since we load everything in a new graph, this is not needed
             tf.import_graph_def(graph_def, name="prefix")
         return graph
 
@@ -65,7 +60,7 @@ class FaceDetectorSSD(FaceDetector):
         if not resize:
             infer_img = npimg
         else:
-            infer_img = cv2.resize(npimg, resize, cv2.INTER_AREA)   # TODO : Resize or not?
+            infer_img = cv2.resize(npimg, resize, cv2.INTER_AREA)
 
         dets, scores, classes = self.session.run([self.tensor_boxes, self.tensor_score, self.tensor_class], feed_dict={
             self.tensor_image: [infer_img]
@@ -87,13 +82,10 @@ class FaceDetectorSSD(FaceDetector):
 
             bbox = BoundingBox(x, y, w, h, score)
 
-            # find landmark
             rect = dlib.rectangle(left=x, top=y, right=x + w, bottom=y + h)
             shape = self.predictor(npimg, rect)
             coords = np.zeros((68, 2), dtype=np.int)
 
-            # loop over the 68 facial landmarks and convert them
-            # to a 2-tuple of (x, y)-coordinates
             for i in range(0, 68):
                 coords[i] = (shape.part(i).x, shape.part(i).y)
             bbox.face_landmark = coords
