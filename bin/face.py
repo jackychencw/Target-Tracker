@@ -9,7 +9,6 @@ from glob import glob
 import cv2
 import numpy as np
 
-import fire
 from sklearn.metrics import roc_curve
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -58,12 +57,6 @@ class DeepFace:
             self.recognizer = FaceRecognizerVGG()
         elif recognizer == FaceRecognizerResnet.NAME:
             self.recognizer = FaceRecognizerResnet('./db.pkl')
-
-    def blackpink(self, visualize=True):
-        imgs = ['./samples/yj/yue_jue%d.jpg' % (i + 1) for i in range(7)]
-        for img in imgs:
-            self.run(image=img, visualize=visualize)
-
     def recognizer_test_run(self, detector=FaceDetectorDlib.NAME, recognizer=FaceRecognizerResnet.NAME, image='./samples/ajb.jpg', visualize=False):
         self.set_detector(detector)
         self.set_recognizer(recognizer)
@@ -114,7 +107,7 @@ class DeepFace:
                     face.face_score = score
         return faces
 
-    def run(self, target_path='/Users/Wangjue/Desktop/deepface/result/test.jpg', detector='detector_ssd_mobilenet_v2', recognizer=FaceRecognizerResnet.NAME, image='./samples/yj/yue_jue1.jpg',
+    def run(self, target_path='../result/test.jpg', detector='detector_ssd_mobilenet_v2', recognizer=FaceRecognizerResnet.NAME, image='./samples/yj/yue_jue1.jpg',
             target=None,visualize=False):
         self.set_detector(detector)
         self.set_recognizer(recognizer)
@@ -140,9 +133,6 @@ class DeepFace:
 
         if recognizer:
             faces = self.run_recognizer(npimg, faces, recognizer)
-        print("=====================")
-        print(faces)
-        print("=====================")
         img = draw_bboxs(np.copy(npimg), faces,target=target)
         cv2.imwrite(target_path, img)
         if visualize and visualize not in ['false', 'False']:
@@ -160,7 +150,6 @@ class DeepFace:
         :return:
         """
         self.save_features_path(path)
-        #self.run(image=image, visualize=False)
         
         assert os.path.exists(image_folder_path)
         if not os.path.exists(target_folder):
@@ -173,8 +162,6 @@ class DeepFace:
         for i in range(num_frames):
             fname = f'{image_folder_path}/{i}.jpg'
             target_path = target_folder + f"/{i}.jpg"
-
-            #self.run(target_path, image=fname, visualize=False,target)
             self.run(target_path, image=fname, target=target,visualize=False)
         
         
@@ -196,162 +183,7 @@ class DeepFace:
         import pickle
         with open('db.pkl', 'wb') as f:
             pickle.dump(features, f, protocol=2)
-
-    def test_lfw(self, set='test', model='ssdm_resnet', visualize=True):
-        if set is 'train':
-            pairfile = 'pairsDevTrain.txt'
-        else:
-            pairfile = 'pairsDevTest.txt'
-        lfw_path = DeepFaceConfs.get()['dataset']['lfw']
-        path = os.path.join(lfw_path, pairfile)
-        with open(path, 'r') as f:
-            lines = f.readlines()[1:]
-
-        pairs = []
-        for line in lines:
-            elms = line.split()
-            if len(elms) == 3:
-                pairs.append((elms[0], int(elms[1]), elms[0], int(elms[2])))
-            elif len(elms) == 4:
-                pairs.append((elms[0], int(elms[1]), elms[2], int(elms[3])))
-            else:
-                logger.warning('line should have 3 or 4 elements, line=%s' % line)
-        detec = FaceDetectorDlib.NAME
-        if model == 'baseline':
-            recog = FaceRecognizerVGG.NAME
-            just_name = 'vgg'
-        elif model == 'baseline_resnet':
-            recog = FaceRecognizerResnet.NAME
-            just_name = 'resnet'
-        elif model == 'ssdm_resnet':
-            recog = FaceRecognizerResnet.NAME
-            just_name = 'resnet'
-            detec = 'detector_ssd_mobilenet_v2'
-        else:
-            raise Exception('invalid model name=%s' % model)
-
-        logger.info('pair length=%d' % len(pairs))
-        test_result = []  # score, label(1=same)
-        for name1, idx1, name2, idx2 in tqdm(pairs):
-            img1_path = os.path.join(lfw_path, name1, '%s_%04d.jpg' % (name1, idx1))
-            img2_path = os.path.join(lfw_path, name2, '%s_%04d.jpg' % (name2, idx2))
-            img1 = cv2.imread(img1_path, cv2.IMREAD_COLOR)
-            img2 = cv2.imread(img2_path, cv2.IMREAD_COLOR)
-
-            if img1 is None:
-                logger.warning('image not read, path=%s' % img1_path)
-            if img2 is None:
-                logger.warning('image not read, path=%s' % img2_path)
-
-            result1 = self.run(image=img1, detector=detec, recognizer=recog, visualize=False)
-            result2 = self.run(image=img2, detector=detec, recognizer=recog, visualize=False)
-
-            if len(result1) == 0:
-                logger.warning('face not detected, name=%s(%d)! %s(%d)' % (name1, idx1, name2, idx2))
-                test_result.append((0.0, name1 == name2))
-                continue
-            if len(result2) == 0:
-                logger.warning('face not detected, name=%s(%d) %s(%d)!' % (name1, idx1, name2, idx2))
-                test_result.append((0.0, name1 == name2))
-                continue
-
-            feat1 = result1[0].face_feature
-            feat2 = result2[0].face_feature
-            similarity = feat_distance_cosine(feat1, feat2)
-            test_result.append((similarity, name1 == name2))
-
-        # calculate accuracy TODO
-        accuracy = sum([label == (score > DeepFaceConfs.get()['recognizer'][just_name]['score_th']) for score, label in test_result]) / float(len(test_result))
-        logger.info('accuracy=%.8f' % accuracy)
-
-        # ROC Curve, AUC
-        tps = []
-        fps = []
-        accuracy0 = []
-        accuracy1 = []
-        acc_th = []
-
-        for th in range(0, 100, 5):
-            th = th / 100.0
-            tp = 0
-            tn = 0
-            fp = 0
-            fn = 0
-            for score, label in test_result:
-                if score >= th and label == 1:
-                    tp += 1
-                elif score >= th and label == 0:
-                    fp += 1
-                elif score < th and label == 0:
-                    tn += 1
-                elif score < th and label == 1:
-                    fn += 1
-            tpr = tp / (tp + fn + 1e-12)
-            fpr = fp / (fp + tn + 1e-12)
-            tps.append(tpr)
-            fps.append(fpr)
-            accuracy0.append(tn / (tn + fp + 1e-12))
-            accuracy1.append(tp / (tp + fn + 1e-12))
-            acc_th.append(th)
-
-        fpr, tpr, thresh = roc_curve([x[1] for x in test_result], [x[0] for x in test_result])
-        fnr = 1 - tpr
-        eer = fnr[np.nanargmin(np.absolute((fnr - fpr)))]
-        logger.info('1-eer=%.4f' % (1.0 - eer))
-
-        with open('./etc/test_lfw.pkl', 'rb') as f:
-            results = pickle.load(f)
-
-        if visualize in [True, 'True', 'true', 1, '1']:
-            fig = plt.figure()
-            a = fig.add_subplot(1, 2, 1)
-            plt.title('Experiment on LFW')
-            plt.plot(fpr, tpr, label='%s(%.4f)' % (model, 1 - eer))  # TODO : label
-
-            for model_name in results:
-                if model_name == model:
-                    continue
-                fpr_prev = results[model_name]['fpr']
-                tpr_prev = results[model_name]['tpr']
-                eer_prev = results[model_name]['eer']
-                plt.plot(fpr_prev, tpr_prev, label='%s(%.4f)' % (model_name, 1 - eer_prev))
-
-            plt.xlim([0.0, 1.0])
-            plt.ylim([0.0, 1.05])
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            a.legend()
-            a.set_title('Receiver operating characteristic')
-
-            a = fig.add_subplot(1, 2, 2)
-            plt.plot(accuracy0, acc_th, label='Accuracy_diff')
-            plt.plot(accuracy1, acc_th, label='Accuracy_same')
-            plt.xlim([0.0, 1.0])
-            plt.ylim([0.0, 1.05])
-            a.legend()
-            a.set_title('%s : TP, TN' % model)
-
-            fig.savefig('./etc/roc.png', dpi=300)
-            plt.show()
-            plt.draw()
-
-        with open('./etc/test_lfw.pkl', 'wb') as f:
-            results[model] = {
-                'fpr': fpr,
-                'tpr': tpr,
-                'acc_th': acc_th,
-                'accuracy0': accuracy0,
-                'accuracy1': accuracy1,
-                'eer': eer
-            }
-            pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
-
-        return 1.0 - eer
-
-
 if __name__ == '__main__':
-    #fire.Fire(DeepFace)
     a = DeepFace()
-    
     a.save_and_run('../samples/yj/faces', '../test_vid_frames', '../result',target='jacky' )
 
