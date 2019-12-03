@@ -127,7 +127,6 @@ if __name__ == "__main__":
     build = args.build
 
     split = args.split
-    print(split)
     output_dir = './output'
     frame_path = f'{output_dir}/video_frames'
     if not os.path.exists(output_dir):
@@ -137,12 +136,13 @@ if __name__ == "__main__":
             os.mkdir(frame_path)
         elif len(os.listdir(frame_path)) != 0:
             for filename in os.listdir(frame_path):
-                file_path += f'/{filename}'
+                file_path = f'{frame_path}/{filename}'
                 os.remove(file_path)
         vid_images = save_video_frame(
             target, use_memory=use_memory, target_folder=frame_path)
     # construct_video_from_memory(vid_images, './out', 'test2.avi')
     if build:
+
         construct_video(target,
                         "./output/out_video", "target_track.avi")
     None
