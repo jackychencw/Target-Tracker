@@ -44,7 +44,6 @@ def process_images(start=100, limit=600, input_path=input_path, mask_path=mask_p
         out = np.copy(input_img)
         out[np.where(edges > 250)] = np.array([0, 255, 0])
         cv.imwrite(f'./out/{filename}', out)
-        i += 1
 
 
 process_images()
