@@ -4,6 +4,26 @@ import glob
 import numpy as np
 from imutils.video import count_frames
 import progressbar
+import argparse
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('--use-memory',
+                    type=bool,
+                    help="Wheather use memory to store video images",
+                    default=False)
+parser.add_argument('--out', '-o',
+                    type=str,
+                    default='./output',
+                    help='Output folder')
+
+parser.add_argument('--target', '-t',
+                    type=str, default='./input/test_vid/test2.mp4', help='Input video')
+parser.add_argument('--build', '-b',
+                    type=bool, default=False, help='Are you building a video from frames?')
+
+parser.add_argument('--split', '-s',
+                    type=bool, default=False, help='Are you spliting a video into frames?')
+args = parser.parse_args()
 
 
 def save_img(fname, img):
@@ -101,8 +121,28 @@ def construct_video(src_folder, target_folder, vid_out):
 
 
 if __name__ == "__main__":
-    # vid_images = save_video_frame('./test_vid/test2.mp4', use_memory=False)
+    use_memory = args.use_memory
+    out = args.out
+    target = args.target
+    build = args.build
+
+    split = args.split
+    print(split)
+    output_dir = './output'
+    frame_path = f'{output_dir}/video_frames'
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    if split:
+        if not os.path.exists(frame_path):
+            os.mkdir(frame_path)
+        elif len(os.listdir(frame_path)) != 0:
+            for filename in os.listdir(frame_path):
+                file_path += f'/{filename}'
+                os.remove(file_path)
+        vid_images = save_video_frame(
+            target, use_memory=use_memory, target_folder=frame_path)
     # construct_video_from_memory(vid_images, './out', 'test2.avi')
-    construct_video("./output/out_frames",
-                    "./output/out_video", "target_track.avi")
+    if build:
+        construct_video(target,
+                        "./output/out_video", "target_track.avi")
     None
