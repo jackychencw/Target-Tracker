@@ -101,8 +101,6 @@ class DeepFace:
                 logger.debug('candidates: %s' % str(result['name'][face_idx]))
                 if result['name'][face_idx]:
                     name, score = result['name'][face_idx][0]
-                    # if score < self.recognizer.get_threshold():
-                    #     continue
                     face.face_name = name
                     face.face_score = score
         return faces

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from tensorflow import keras
 from os import path
 
