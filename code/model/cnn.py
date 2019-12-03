@@ -15,7 +15,6 @@ _MODEL_SIZE = (416, 416)
 
 
 def batch_norm(inputs, training, data_format):
-    """Performs a batch normalization using a standard set of parameters."""
     return tf.layers.batch_normalization(
         inputs=inputs, axis=1 if data_format == 'channels_first' else 3,
         momentum=_BATCH_NORM_DECAY, epsilon=_BATCH_NORM_EPSILON,
@@ -38,7 +37,6 @@ def fixed_padding(inputs, kernel_size, data_format):
 
 
 def conv2d_fixed_padding(inputs, filters, kernel_size, data_format, strides=1):
-    """Strided 2-D convolution with explicit padding."""
     if strides > 1:
         inputs = fixed_padding(inputs, kernel_size, data_format)
 
@@ -50,7 +48,6 @@ def conv2d_fixed_padding(inputs, filters, kernel_size, data_format, strides=1):
 
 def darknet53_residual_block(inputs, filters, training, data_format,
                              strides=1):
-    """Creates a residual block for Darknet."""
     shortcut = inputs
 
     inputs = conv2d_fixed_padding(
@@ -71,7 +68,6 @@ def darknet53_residual_block(inputs, filters, training, data_format,
 
 
 def darknet53(inputs, training, data_format):
-    """Creates Darknet53 model for feature extraction."""
     inputs = conv2d_fixed_padding(inputs, filters=32, kernel_size=3,
                                   data_format=data_format)
     inputs = batch_norm(inputs, training=training, data_format=data_format)
@@ -132,7 +128,6 @@ def darknet53(inputs, training, data_format):
 
 
 def yolo_convolution_block(inputs, filters, training, data_format):
-    """Creates convolution operations layer used after Darknet."""
     inputs = conv2d_fixed_padding(inputs, filters=filters, kernel_size=1,
                                   data_format=data_format)
     inputs = batch_norm(inputs, training=training, data_format=data_format)
@@ -212,7 +207,6 @@ def yolo_layer(inputs, n_classes, anchors, img_size, data_format):
 
 
 def upsample(inputs, out_shape, data_format):
-    """Upsamples to `out_shape` using nearest neighbor interpolation."""
     if data_format == 'channels_first':
         inputs = tf.transpose(inputs, [0, 2, 3, 1])
         new_height = out_shape[3]
@@ -230,7 +224,6 @@ def upsample(inputs, out_shape, data_format):
 
 
 def build_boxes(inputs):
-    """Computes top left and bottom right points of the boxes."""
     center_x, center_y, width, height, confidence, classes = \
         tf.split(inputs, [1, 1, 1, 1, 1, -1], axis=-1)
 
