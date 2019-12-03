@@ -12,48 +12,13 @@ CASTABLE_TYPES = (tf.float16,)
 ALLOWED_TYPES = (DEFAULT_DTYPE,) + CASTABLE_TYPES
 
 
-def batch_norm(inputs, training, data_format):
-    return tf.compat.v1.layers.batch_normalization(
-        inputs=inputs, axis=1 if data_format == 'channels_first' else 3,
-        momentum=_BATCH_NORM_DECAY, epsilon=_BATCH_NORM_EPSILON, center=True,
-        scale=True, training=training, fused=True)
-
-
-def fixed_padding(inputs, kernel_size, data_format):
-    pad_total = kernel_size - 1
-    pad_beg = pad_total // 2
-    pad_end = pad_total - pad_beg
-
-    if data_format == 'channels_first':
-        padded_inputs = tf.pad(tensor=inputs,
-                               paddings=[[0, 0], [0, 0], [pad_beg, pad_end],
-                                         [pad_beg, pad_end]])
-    else:
-        padded_inputs = tf.pad(tensor=inputs,
-                               paddings=[[0, 0], [pad_beg, pad_end],
-                                         [pad_beg, pad_end], [0, 0]])
-    return padded_inputs
-
-
-def conv2d_fixed_padding(inputs, filters, kernel_size, strides, data_format):
-    if strides > 1:
-        inputs = fixed_padding(inputs, kernel_size, data_format)
-
-    return tf.compat.v1.layers.conv2d(
-        inputs=inputs, filters=filters, kernel_size=kernel_size, strides=strides,
-        padding=('SAME' if strides == 1 else 'VALID'), use_bias=False,
-        kernel_initializer=tf.compat.v1.variance_scaling_initializer(),
-        data_format=data_format)
-
-
-def _building_block_v1(inputs, filters, training, projection_shortcut, strides,
-                       data_format):
-    temp = inputs
+def block1(inputs, filters, training, projection_shortcut, strides,
+           data_format):
+    shortcut = inputs
     if projection_shortcut is not None:
-        temp = projection_shortcut(inputs)
-        temp = batch_norm(inputs=temp, training=training,
-                          data_format=data_format)
-
+        shortcut = projection_shortcut(inputs)
+        shortcut = batch_norm(inputs=shortcut, training=training,
+                              data_format=data_format)
     inputs = conv2d_fixed_padding(
         inputs=inputs, filters=filters, kernel_size=3, strides=strides,
         data_format=data_format)
@@ -70,14 +35,14 @@ def _building_block_v1(inputs, filters, training, projection_shortcut, strides,
     return inputs
 
 
-def _building_block_v2(inputs, filters, training, projection_shortcut, strides,
-                       data_format):
-    temp = inputs
+def block2(inputs, filters, training, projection_shortcut, strides,
+           data_format):
+    shortcut = inputs
     inputs = batch_norm(inputs, training, data_format)
     inputs = tf.nn.relu(inputs)
 
     if projection_shortcut is not None:
-        temp = projection_shortcut(inputs)
+        shortcut = projection_shortcut(inputs)
 
     inputs = conv2d_fixed_padding(
         inputs=inputs, filters=filters, kernel_size=3, strides=strides,
@@ -89,11 +54,11 @@ def _building_block_v2(inputs, filters, training, projection_shortcut, strides,
         inputs=inputs, filters=filters, kernel_size=3, strides=1,
         data_format=data_format)
 
-    return inputs + temp
+    return inputs + shortcut
 
 
-def _bottleneck_block_v1(inputs, filters, training, projection_shortcut,
-                         strides, data_format):
+def bottleneck1(inputs, filters, training, projection_shortcut,
+                strides, data_format):
     shortcut = inputs
 
     if projection_shortcut is not None:
@@ -119,12 +84,11 @@ def _bottleneck_block_v1(inputs, filters, training, projection_shortcut,
     inputs = batch_norm(inputs, training, data_format)
     inputs += shortcut
     inputs = tf.nn.relu(inputs)
-
     return inputs
 
 
-def _bottleneck_block_v2(inputs, filters, training, projection_shortcut,
-                         strides, data_format):
+def bottleneck2(inputs, filters, training, projection_shortcut,
+                strides, data_format):
     shortcut = inputs
     inputs = batch_norm(inputs, training, data_format)
     inputs = tf.nn.relu(inputs)
@@ -189,14 +153,14 @@ class Model(object):
         self.bottleneck = bottleneck
         if bottleneck:
             if resnet_version == 1:
-                self.block_fn = _bottleneck_block_v1
+                self.block_fn = bottleneck1
             else:
-                self.block_fn = _bottleneck_block_v2
+                self.block_fn = bottleneck2
         else:
             if resnet_version == 1:
-                self.block_fn = _building_block_v1
+                self.block_fn = block1
             else:
-                self.block_fn = _building_block_v2
+                self.block_fn = block2
 
         if dtype not in ALLOWED_TYPES:
             raise ValueError('dtype must be one of: {}'.format(ALLOWED_TYPES))
@@ -227,7 +191,6 @@ class Model(object):
                                            custom_getter=self._custom_dtype_getter)
 
     def __call__(self, inputs, training):
-
         with self._model_variable_scope():
             if self.data_format == 'channels_first':
                 inputs = tf.transpose(a=inputs, perm=[0, 3, 1, 2])
@@ -270,3 +233,37 @@ class Model(object):
                 inputs=inputs, units=self.num_classes)
             inputs = tf.identity(inputs, 'final_dense')
             return inputs
+
+
+def batch_norm(inputs, training, data_format):
+    return tf.compat.v1.layers.batch_normalization(
+        inputs=inputs, axis=1 if data_format == 'channels_first' else 3,
+        momentum=_BATCH_NORM_DECAY, epsilon=_BATCH_NORM_EPSILON, center=True,
+        scale=True, training=training, fused=True)
+
+
+def fixed_padding(inputs, kernel_size, data_format):
+    pad_total = kernel_size - 1
+    pad_beg = pad_total // 2
+    pad_end = pad_total - pad_beg
+
+    if data_format == 'channels_first':
+        padded_inputs = tf.pad(tensor=inputs,
+                               paddings=[[0, 0], [0, 0], [pad_beg, pad_end],
+                                         [pad_beg, pad_end]])
+    else:
+        padded_inputs = tf.pad(tensor=inputs,
+                               paddings=[[0, 0], [pad_beg, pad_end],
+                                         [pad_beg, pad_end], [0, 0]])
+    return padded_inputs
+
+
+def conv2d_fixed_padding(inputs, filters, kernel_size, strides, data_format):
+    if strides > 1:
+        inputs = fixed_padding(inputs, kernel_size, data_format)
+
+    return tf.compat.v1.layers.conv2d(
+        inputs=inputs, filters=filters, kernel_size=kernel_size, strides=strides,
+        padding=('SAME' if strides == 1 else 'VALID'), use_bias=False,
+        kernel_initializer=tf.compat.v1.variance_scaling_initializer(),
+        data_format=data_format)
