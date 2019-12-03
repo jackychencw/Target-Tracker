@@ -37,7 +37,7 @@ def process_images(start=100, limit=600, input_path=input_path, mask_path=mask_p
         input_img = cv.imread(input_file_path)
         mask_img = cv.imread(mask_file_path)
         mask_img = cv.resize(
-            mask_img, (input_img.shape[0], input_img.shape[1]))
+            mask_img, (input_img.shape[1], input_img.shape[0]))
         print(input_img.shape)
         print(mask_img.shape)
         edges = cv.Canny(mask_img, 100, 200)
