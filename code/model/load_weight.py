@@ -15,15 +15,12 @@ def load_weights(variables, file_name):
         A list of assign operations.
     """
     with open(file_name, "rb") as f:
-        # Skip first 5 values containing irrelevant info
         np.fromfile(f, dtype=np.int32, count=5)
         weights = np.fromfile(f, dtype=np.float32)
 
         assign_ops = []
         ptr = 0
 
-        # Load weights for Darknet part.
-        # Each convolution layer has batch normalization.
         for i in range(52):
             conv_var = variables[5 * i]
             gamma, beta, mean, variance = variables[5 * i + 1:5 * i + 5]
@@ -44,8 +41,6 @@ def load_weights(variables, file_name):
             ptr += num_params
             assign_ops.append(tf.assign(conv_var, var_weights))
 
-        # Loading weights for Yolo part.
-        # 7th, 15th and 23rd convolution layer has biases and no batch norm.
         ranges = [range(0, 6), range(6, 13), range(13, 20)]
         unnormalized = [6, 13, 20]
         for j in range(3):

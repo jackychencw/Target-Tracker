@@ -1,13 +1,3 @@
-"""Yolo v3 detection script.
-Saves the detections in the `detection` folder.
-Usage:
-    python detect.py <images/video> <iou threshold> <confidence threshold> <filenames>
-Example:
-    python detect.py images 0.5 0.5 data/images/dog.jpg data/images/office.jpg
-    python detect.py video 0.5 0.5 data/video/shinjuku.mp4
-Note that only one video can be processed at one run.
-"""
-
 import tensorflow as tf
 import sys
 import cv2

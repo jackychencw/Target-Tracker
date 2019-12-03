@@ -14,7 +14,6 @@ bin_num = 8
 im_size = [32, 32]
 
 
-# image path must be wrt current working directory
 def create_array(image_path):
 
     image = Image.open(os.path.join(cwd, image_path)).convert('L')
@@ -30,10 +29,8 @@ def create_grad_array(image_array):
 
     image_array = np.asarray(image_array, dtype=float)
 
-    # gamma correction
     image_array = (image_array)**2.5
 
-    # local contrast normalisation
     image_array = (image_array-np.mean(image_array))/np.std(image_array)
     max_h = 32
     max_w = 32
@@ -79,7 +76,6 @@ def create_hog_features(grad_array, mag_array):
     i = 0
     j = 0
 
-    # Creating 8X8 cells
     while i < max_h:
         w = 0
         j = 0
@@ -97,9 +93,7 @@ def create_hog_features(grad_array, mag_array):
         h += incr[0]
 
     cell_array = np.reshape(cell_array, (max_h, max_w, bin_num))
-    # normalising blocks of cells
     block = [2, 2]
-    # here increment is 1
 
     max_h = int((max_h-block[0])+1)
     max_w = int((max_w-block[1])+1)
@@ -124,11 +118,7 @@ def create_hog_features(grad_array, mag_array):
         i += 1
         h += 1
 
-    # returns a vextor array list of 288 elements
     return block_list
-
-# image_array must be an array
-# returns a 288 features vector from image array
 
 
 def apply_hog(image_array):
@@ -139,17 +129,12 @@ def apply_hog(image_array):
 
     return hog_features
 
-# path must be image path
-# returns final features array from image_path
-
 
 def hog_from_path(image_path):
     image_array = create_array(image_path)
     final_array = apply_hog(image_array)
 
     return final_array
-
-# Creates hog files
 
 
 def create_hog_file(image_path, save_path):

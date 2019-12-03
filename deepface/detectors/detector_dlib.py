@@ -10,9 +10,6 @@ from .detector_base import FaceDetector
 
 
 class FaceDetectorDlib(FaceDetector):
-    """
-    reference : https://www.pyimagesearch.com/2017/04/03/facial-landmarks-dlib-opencv-python/
-    """
     NAME = 'detector_dlib'
 
     def __init__(self):
@@ -57,8 +54,6 @@ class FaceDetectorDlib(FaceDetector):
         shape = self.predictor(npimg, det)
         coords = np.zeros((68, 2), dtype=np.int)
 
-        # loop over the 68 facial landmarks and convert them
-        # to a 2-tuple of (x, y)-coordinates
         for i in range(0, 68):
             coords[i] = (shape.part(i).x, shape.part(i).y)
         return coords

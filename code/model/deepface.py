@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from tensorflow import keras
 from os import path
 
@@ -9,21 +8,10 @@ LEARN_RATE = 0.01
 MOMENTUM = 0.9
 
 def create_deepface(image_size=IMAGE_SIZE, channels=CHANNELS, num_classes=NUM_CLASSES, learn_rate=LEARN_RATE, momentum=MOMENTUM):
-    """
-    Deep CNN architecture primarily for Face Recognition,
-    Face Verification and Face Representation (feature extraction) purposes
-    "DeepFace: Closing the Gap to Human-Level Performance in Face Verification"
-    CNN architecture proposed by Taigman et al. (CVPR 2014)
-    """
 
     wt_init = keras.initializers.RandomNormal(mean=0, stddev=0.01)
     bias_init = keras.initializers.Constant(value=0.5)
 
-    """
-    Construct certain functions 
-    for using some common parameters
-    with network layers
-    """
     def conv2d_layer(**args):
         return keras.layers.Conv2D(**args, 
             kernel_initializer=wt_init, 
@@ -39,10 +27,6 @@ def create_deepface(image_size=IMAGE_SIZE, channels=CHANNELS, num_classes=NUM_CL
             kernel_initializer=wt_init, 
             bias_initializer=bias_init)
 
-    """
-    Create the network using
-    tf.keras.layers.Layer(s)
-    """
     deepface = keras.models.Sequential([
         keras.layers.InputLayer(input_shape=(*image_size, channels), name='I0'),
         conv2d_layer(filters=32, kernel_size=11, name='C1'),
@@ -58,11 +42,6 @@ def create_deepface(image_size=IMAGE_SIZE, channels=CHANNELS, num_classes=NUM_CL
     ], name='DeepFace')
     deepface.summary()
 
-    """
-    A tf.keras.optimizers.SGD will
-    be used for training,
-    and compile the model
-    """
     sgd_opt = keras.optimizers.SGD(lr=learn_rate, momentum=momentum)
     cce_loss = keras.losses.categorical_crossentropy
 

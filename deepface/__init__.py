@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-"""deepface
-"""
 from __future__ import absolute_import
 
 from . import confs

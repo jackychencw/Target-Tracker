@@ -14,9 +14,4 @@ class FaceDetector(object):
 
     @abc.abstractmethod
     def detect(self, npimg):
-        """
-
-        :param npimg:
-        :return: list of BoundingBox
-        """
         pass

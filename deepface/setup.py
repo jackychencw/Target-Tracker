@@ -14,7 +14,6 @@ subprocess.check_output(["bash", "deepface/detectors/ssd/download.sh"], cwd=cwd)
 subprocess.check_output(["bash", "deepface/recognizers/vggface/download.sh"], cwd=cwd)
 subprocess.check_output(["bash", "deepface/recognizers/vggface2_resnet/download.sh"], cwd=cwd)
 
-# 'opencv-python >= 3.3.1'
 REQUIRED_PACKAGES = [
     'tensorflow >= 1.7.0',
     'dill >= 0.2.7.1',

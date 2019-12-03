@@ -3,13 +3,9 @@ import cv2
 from .colors import get_random_color
 
 def draw_bbox(npimg, bbox, color=(0, 255, 0),target=None):
-    
-
-    
-
+       
     if bbox.score > 0.0:
         if not target:
-            #cv2.rectangle(npimg, (bbox.x, bbox.y), (bbox.x + bbox.w, bbox.y + bbox.h), color, 2)
             if bbox.face_landmark is not None:
                 for (x, y) in bbox.face_landmark:
                     cv2.circle(npimg, (x, y), 1, color, -1)
@@ -17,7 +13,6 @@ def draw_bbox(npimg, bbox, color=(0, 255, 0),target=None):
             cv2.putText(npimg, "%s %.2f" % (('%s(%.2f):' % (bbox.face_name, bbox.face_score)) if bbox.face_name else '', bbox.score), (bbox.x - 1, bbox.y - 1), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, thickness=1)
         else:
             if target==bbox.face_name:
-                #cv2.rectangle(npimg, (bbox.x, bbox.y), (bbox.x + bbox.w, bbox.y + bbox.h), color, 2)
                 if bbox.face_landmark is not None:
                     for (x, y) in bbox.face_landmark:
                         cv2.circle(npimg, (x, y), 1, color, -1)

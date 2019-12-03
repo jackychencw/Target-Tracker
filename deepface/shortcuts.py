@@ -12,13 +12,6 @@ from deepface.recognizers.recognizer_resnet import FaceRecognizerResnet
 
 
 def get_detector(name='ssd_mobilenet_v2'):
-    """
-
-    :type name: str
-    :param name: 
-    :return:
-    """
-
     if name == 'dlib':
         return FaceDetectorDlib()
     elif name == 'ssd_inception_v2':
@@ -30,12 +23,6 @@ def get_detector(name='ssd_mobilenet_v2'):
 
 
 def get_recognizer(name='vgg', db=None):
-    """
-
-    :param db:
-    :param name:
-    :return:
-    """
     if name == 'vgg':
         return FaceRecognizerVGG(custom_db=db)
     elif name == 'vgg2':
@@ -45,11 +32,6 @@ def get_recognizer(name='vgg', db=None):
 
 
 def save_features(img_folder_path, output_path=None, method="vgg"):
-    """
-
-    :param path: folder contain images("./samples/faces/")
-    :return:
-    """
     name_paths = [(os.path.basename(img_path)[:-4], img_path)
                   for img_path in glob(os.path.join(img_folder_path, "*.jpg"))]
 

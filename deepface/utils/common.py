@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import math
 
 import cv2
@@ -114,30 +113,27 @@ def get_roi(img, face, roi_mode):
         print(crop_y_ratio, (1.0 - crop_y_ratio), roll, pasted.shape, cropped.shape, 'min', min_x, max_x, min_y, max_y,
               'imgsize', image_size, start_x, start_y, crop_w, crop_h)
         print(center_point)
-        # crop_y_ratio set 0.3667256819925064
-        # 0.0 (128, 128, 3) (249, 128, 3) min 76 166 101 193 imgsize 128 0 129 128 -1
-        # (121.0, -65.31315823528763)
 
     return pasted
 
 
 def landmark_to_pose(landmark, image_shape):
     image_points = np.array([
-        landmark[33],  # (359, 391),  # Nose tip
-        landmark[8],  # (399, 561),  # Chin
-        landmark[36],  # (337, 297),  # Left eye left corner
-        landmark[45],  # (513, 301),  # Right eye right corne
-        landmark[48],  # (345, 465),  # Left Mouth corner
-        landmark[54],  # (453, 469)  # Right mouth corner
+        landmark[33],
+        landmark[8],
+        landmark[36],
+        landmark[45],
+        landmark[48],
+        landmark[54],
     ], dtype='double')
 
     model_points = np.array([
-        (0.0, 0.0, 0.0),  # Nose tip
-        (0.0, -330.0, -65.0),  # Chin
-        (-225.0, 170.0, -135.0),  # Left eye left corner
-        (225.0, 170.0, -135.0),  # Right eye right corne
-        (-150.0, -150.0, -125.0),  # Left Mouth corner
-        (150.0, -150.0, -125.0)  # Right mouth corner
+        (0.0, 0.0, 0.0),
+        (0.0, -330.0, -65.0),
+        (-225.0, 170.0, -135.0),
+        (225.0, 170.0, -135.0),
+        (-150.0, -150.0, -125.0),
+        (150.0, -150.0, -125.0)
     ])
 
     center = (image_shape[1] / 2, image_shape[0] / 2)
@@ -148,7 +144,7 @@ def landmark_to_pose(landmark, image_shape):
          [0, 0, 1]], dtype="double"
     )
 
-    dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
+    dist_coeffs = np.zeros((4, 1))
     success, rotation_vector, translation_vector = cv2.solvePnP(model_points, image_points, camera_matrix,
                                                                 dist_coeffs, flags=cv2.SOLVEPNP_ITERATIVE)
 
