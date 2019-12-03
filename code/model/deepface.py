@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from tensorflow import keras
 from os import path
 
@@ -30,10 +29,6 @@ def create_deepface(image_size=IMAGE_SIZE, channels=CHANNELS, num_classes=NUM_CL
                                   kernel_initializer=wt_init,
                                   bias_initializer=bias_init)
 
-    """
-    Create the network using
-    tf.keras.layers.Layer(s)
-    """
     deepface = keras.models.Sequential([
         keras.layers.InputLayer(input_shape=(
             *image_size, channels), name='I0'),
