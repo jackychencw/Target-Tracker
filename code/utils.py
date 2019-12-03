@@ -2,6 +2,28 @@ import cv2 as cv
 import os
 import glob
 import numpy as np
+from imutils.video import count_frames
+import progressbar
+import argparse
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('--use-memory',
+                    type=bool,
+                    help="Wheather use memory to store video images",
+                    default=False)
+parser.add_argument('--out', '-o',
+                    type=str,
+                    default='./output',
+                    help='Output folder')
+
+parser.add_argument('--target', '-t',
+                    type=str, default='./input/test_vid/test2.mp4', help='Input video')
+parser.add_argument('--build', '-b',
+                    type=bool, default=False, help='Are you building a video from frames?')
+
+parser.add_argument('--split', '-s',
+                    type=bool, default=False, help='Are you spliting a video into frames?')
+args = parser.parse_args()
 
 
 def save_img(fname, img):
@@ -14,12 +36,16 @@ def load_img(fname):
 
 
 def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=True):
-    print("Cutting video to frames...")
     if not os.path.exists(target_folder):
         os.mkdir(target_folder)
     assert os.path.exists(target_folder)
-
+    num_frames = count_frames(vid_name, override=True)
     vidcap = cv.VideoCapture(vid_name)
+
+    print("Loading frames...")
+    bar = progressbar.ProgressBar(maxval=num_frames,
+                                  widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    bar.start()
     success, image = vidcap.read()
     if not use_memory:
         count = 0
@@ -28,7 +54,8 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
             save_img(dest, image)
             success, image = vidcap.read()
             count += 1
-        print("Done saving images in local drive")
+            bar.update(count)
+        print("\nDone saving images in local drive")
         return None
     else:
         image_list = [image]
@@ -36,12 +63,12 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
         while success:
             success, image = vidcap.read()
             if image is not None:
-                print(count)
                 image_list.append(image)
                 count += 1
+                bar.update(count)
         result = image_list
         # result = np.asarray(image_list)
-        print("Done saving image in memory")
+        print("\nDone saving image in memory")
         return result
 
 
@@ -50,17 +77,20 @@ def construct_video_from_memory(images, target_folder, vid_out):
         os.mkdir(target_folder)
     assert os.path.exists(target_folder)
     print("Constructing video ...")
+    num_imgs = len(images)
     height, width, layers = images[0].shape
     size = (width, height)
-    print(size)
     out_path = f'{target_folder}/{vid_out}'
     out = cv.VideoWriter(
         out_path, cv.VideoWriter_fourcc(*'DIVX'), 15, size)
+    bar = progressbar.ProgressBar(maxval=num_imgs - 1,
+                                  widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+    bar.start()
     for i in range(len(images)):
-        print(i)
         out.write(images[i])
+        bar.update(i)
     out.release()
-    print("Done constructing video!")
+    print("\nDone constructing video!")
 
 
 def construct_video(src_folder, target_folder, vid_out):
@@ -76,9 +106,10 @@ def construct_video(src_folder, target_folder, vid_out):
         fname = f'{src_folder}/{i}.jpg'
         print(fname)
         img = load_img(fname)
-        height, width, layers = img.shape
-        size = (width, height)
-        img_array.append(img)
+        if img is not None:
+            height, width, layers = img.shape
+            size = (width, height)
+            img_array.append(img)
 
     out_path = f'{target_folder}/{vid_out}'
     out = cv.VideoWriter(
@@ -90,7 +121,28 @@ def construct_video(src_folder, target_folder, vid_out):
 
 
 if __name__ == "__main__":
-    vid_images = save_video_frame('./test_vid/video.mp4')
-    construct_video_from_memory(vid_images, './out', 'testproject.avi')
-    # construct_video("./test_vid_processed_frames", "./out", "testproject.avi")
+    use_memory = args.use_memory
+    out = args.out
+    target = args.target
+    build = args.build
+
+    split = args.split
+    output_dir = './output'
+    frame_path = f'{output_dir}/video_frames'
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    if split:
+        if not os.path.exists(frame_path):
+            os.mkdir(frame_path)
+        elif len(os.listdir(frame_path)) != 0:
+            for filename in os.listdir(frame_path):
+                file_path = f'{frame_path}/{filename}'
+                os.remove(file_path)
+        vid_images = save_video_frame(
+            target, use_memory=use_memory, target_folder=frame_path)
+    # construct_video_from_memory(vid_images, './out', 'test2.avi')
+    if build:
+
+        construct_video(target,
+                        "./output/out_video", "target_track.avi")
     None

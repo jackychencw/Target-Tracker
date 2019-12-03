@@ -1,5 +1,10 @@
 # All python dependencies
-
-opencv-contrib-python
+keras==2.3.0
+tensorflow==2.1.0rc0
+opencv-python
 numpy
 glob3
+progressbar
+imutils
+matplotlib
+tensorflow-gpu

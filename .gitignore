@@ -1,3 +1,5 @@
-test_vid_frames
-test_vid_processed_frames
-out
+code/output/out_frames/*
+code/output/out_video/*
+code/output/processed_frames/*
+code/output/test_vid_frames/*
+code/output/video_frames/*

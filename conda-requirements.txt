@@ -1,0 +1,7 @@
+opencv
+numpy
+glob2
+progressbar
+imutils
+matplotlib
+tensorflow-gpu

@@ -16,10 +16,22 @@ Tasks for this project
 
 6.	If such input is provided, other than face detection we also perform a motion detection on the target and show a path for where the target has traveled
 
-INSTRUCTION
+# 1. SETUP INSTRUCTION
+A setup instruction on CDF computer:
+## Step 1. Install Miniconda
+## Step 2. Install tensorflow-gpu
+```shell
+conda create -n tensorflow python=3.5
+```
 
-To install requirments:<br />
-  using pip:<br />
-    pip install -R requirements.txt<br />
-  using conda:<br />
-    conda install --file conda-requirements.txt<br />
+
+To install requirments using pip:<br />
+```shell
+pip install -R requirements.txt
+```
+using conda:<br />
+```shell
+conda install --file conda-requirements.txt
+```
+
+To install tensorflow-gpu
