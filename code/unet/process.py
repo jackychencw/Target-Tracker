@@ -39,6 +39,8 @@ def process_images(start=100, limit=600, input_path=input_path, mask_path=mask_p
         mask_file_path = mask_path + mask_file_name
         input_img = cv.imread(input_file_path)
         mask_img = cv.imread(mask_file_path)
+        mask_img = cv.resize(
+            mask_img, (input_img.shape[0], input_img.shape[1]))
         edges = cv.Canny(mask_img, 100, 200)
         out = np.copy(input_img)
         out[np.where(edges > 250)] = np.array([0, 255, 0])
