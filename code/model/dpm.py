@@ -64,15 +64,12 @@ class DPM:
 	def show_images(self, images, titles=None):
 		import matplotlib.pyplot as plt
 	
-		#Display a list of images
 		n_ims = len(images)
 		if titles is None: titles = ['(%d)' % i for i in range(1,n_ims + 1)]
 		fig = plt.figure()
 		n = 1
 		for image,title in zip(images,titles):
-			a = fig.add_subplot(1,n_ims,n) # Make subplot
-			#if image.ndim == 2: # Is image grayscale?
-			#    plt.gray() # Only place in this blog you can't replace 'gray' with 'grey'
+			a = fig.add_subplot(1,n_ims,n)
 			plt.imshow(image)
 			a.set_title(title)
 			n += 1
@@ -87,9 +84,9 @@ class DPM:
 
 		im = img.astype('int32')
 
-		dx = ndimage.sobel(im, 1)  # horizontal derivative
-		dy = ndimage.sobel(im, 0)  # vertical derivative
-		mag = numpy.hypot(dx, dy)  # magnitude
+		dx = ndimage.sobel(im, 1)
+		dy = ndimage.sobel(im, 0)
+		mag = numpy.hypot(dx, dy)
 		
 		return mag
 
@@ -183,8 +180,8 @@ class DPM:
 		cells_per_bl_1 = 2, 
 		trees = 1000):
 	
-		part_w = self.part_w #20
-		part_h = self.part_h #10
+		part_w = self.part_w
+		part_h = self.part_h
 
 		parts, parts_per_image = self.compute_part_filters('CarData/TrainImages')
 		self.parts = parts
@@ -308,7 +305,6 @@ class DPM:
 	
 
 	def get_filters_cost(self, best_coord, filters_nmb):
-		#Euclidean
 		return np.sqrt((self.parts[filters_nmb - 1][0] - best_coord[0])**2 + (self.parts[filters_nmb - 1][1] - best_coord[1])**2)/(self.parts_count)
 
 
@@ -462,7 +458,6 @@ class DPM:
 			nmb = 0
 	
 			im = cv2.imread('CarData/TrainImages/neg-' + str(el) + '.pgm',0)
-			#filters_el = []
 
 			if not self.process_frame(im[14:36,5:95],tres_main,tres_nomain):
 				tn += 1
@@ -480,7 +475,6 @@ class DPM:
 		print 'RESULT_VALID: ','tres_main=',tres_main,' tres_nomain=', tres_nomain,' tp=',tp, 'fp=',fp,"tn=",tn,"fn=",fn,"recall=",recall,"precision=",precision,"accuracy=",accuracy ,"f1=",f1
 
 
-		#another trash, delete
 	def get_new_test(self,clfs,pix_per_cell = 8, cells_per_bl = 2,pix_per_cell_1 = 4, cells_per_bl_1 = 2):
 		print 'testing'
 		annotations = open('CarData/trueLocations.txt','r')
