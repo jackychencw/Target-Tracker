@@ -23,7 +23,7 @@ def save_video_frame(vid_name, target_folder='./test_vid_frames', use_memory=Tru
     vidcap = cv.VideoCapture(vid_name)
 
     print("Loading frames...")
-    bar = progressbar.ProgressBar(maxval=num_frames - 1,
+    bar = progressbar.ProgressBar(maxval=num_frames,
                                   widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     bar.start()
     success, image = vidcap.read()
@@ -86,9 +86,10 @@ def construct_video(src_folder, target_folder, vid_out):
         fname = f'{src_folder}/{i}.jpg'
         print(fname)
         img = load_img(fname)
-        height, width, layers = img.shape
-        size = (width, height)
-        img_array.append(img)
+        if img is not None:
+            height, width, layers = img.shape
+            size = (width, height)
+            img_array.append(img)
 
     out_path = f'{target_folder}/{vid_out}'
     out = cv.VideoWriter(
@@ -100,7 +101,8 @@ def construct_video(src_folder, target_folder, vid_out):
 
 
 if __name__ == "__main__":
-    vid_images = save_video_frame('./test_vid/test3.mp4')
-    construct_video_from_memory(vid_images, './out', 'test3.avi')
-    # construct_video("./test_vid_processed_frames", "./out", "testproject.avi")
+    # vid_images = save_video_frame('./test_vid/test2.mp4', use_memory=False)
+    # construct_video_from_memory(vid_images, './out', 'test2.avi')
+    construct_video("./output/out_frames",
+                    "./output/out_video", "target_track.avi")
     None

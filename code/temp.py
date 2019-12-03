@@ -7,6 +7,7 @@ import tensorflow as tf
 from matplotlib import pyplot as plt
 from os import path
 from tensorflow import keras
+import cv2 as cv
 
 
 IMAGE_SIZE = (152, 152)
@@ -102,6 +103,7 @@ def get_weights():
 SHUFFLE_BUFFER = 1
 tf.compat.v1.disable_v2_behavior()
 
+
 class Dataset:
     @staticmethod
     def preprocess_image(img):
@@ -139,9 +141,9 @@ class Dataset:
         image = tf.image.decode_jpeg(image, channels=3)
         image = tf.compat.v1.image.resize_image_with_pad(
             image, self.image_size[0], self.image_size[1])
+
         image = tf.cast(image, tf.float32)
         image = Dataset.preprocess_image(image)
-
         return image, classl
 
     def read_tfrec(self, example):
@@ -149,6 +151,7 @@ class Dataset:
             'image': tf.io.FixedLenFeature([], tf.string),
             'class': tf.io.FixedLenFeature([], tf.string)
         }
+
         example = tf.io.parse_single_example(example, feature)
         return self.get_image_and_class(example['image'], example['class'])
 
@@ -169,16 +172,18 @@ class Dataset:
         ds = ds.batch(self.batch_size, drop_remainder=True)
         return ds.prefetch(prefetch_size)
 
+
 def get_train_test_dataset(cl_path, dataset_path, image_size, batch_size):
     train_path = '/train'
     test_path = '/test'
-    train, test = [Dataset(cl_path, dataset_path + curr_path,image_size, batch_size, training)for curr_path, training in zip((train_path, test_path), (True, False))]
+    train, test = [Dataset(cl_path, dataset_path + curr_path, image_size, batch_size, training)
+                   for curr_path, training in zip((train_path, test_path), (True, False))]
     return train, test
 
 
 CL_PATH = './class_labels.txt'
-DATASET_PATH = './images'
-TB_PATH = './imagess'
+DATASET_PATH = './image'
+TB_PATH = './image'
 
 keras.backend.clear_session()
 # TPU_WORKER = 'grpc://' + os.environ['COLAB_TPU_ADDR']
