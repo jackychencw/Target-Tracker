@@ -29,4 +29,4 @@ def construct_video(src_folder, target_folder, vid_out):
     out.release()
 
 if __name__ == '__main__':
-    construct_video('../result', '../','hello_world.mp4')
+    construct_video('../result', '../code/input/target/','target.mp4')
