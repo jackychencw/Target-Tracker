@@ -19,4 +19,4 @@ def save_video_frame(vid_name, target_folder):
         count += 1
     
 if __name__ == '__main__':
-    save_video_frame('../video.mp4', '../result')
+    save_video_frame('../video.mp4', '../test_vid_frames')
