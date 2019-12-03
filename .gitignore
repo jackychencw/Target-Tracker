@@ -3,3 +3,9 @@ code/output/out_video/*
 code/output/processed_frames/*
 code/output/test_vid_frames/*
 code/output/video_frames/*
+input
+output
+code/unet/out_frames
+code/unet/people_data/
+code/unet/out
+*.h5
