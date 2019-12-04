@@ -20,8 +20,8 @@ import tensorflow as tf
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 cwd = os.getcwd()
-im_width = 128
-im_height = 128
+im_width = 960
+im_height = 544
 border = 5
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--train-path',
@@ -82,7 +82,7 @@ def train_model(model, save_path=save_path, learning_rate=0.01, momentum=0.9, lo
     return results
 
 
-def predict(weight_path, pred_path, threshold=0.2, out_path="./Output"):
+def predict(weight_path, pred_path, threshold=0.5, out_path="./Output"):
     pred_dataset = dataset.CatDataset(pred_path, im_width, im_height)
     X_pred, y_pred = pred_dataset.X, pred_dataset.Y
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     # Test
     if test:
         weight_path = save_path
-        threshold = 0.9
+        threshold = 0.5
         test_model(weight_path, threshold)
     if pred:
         predict(weight_path=path_weight, pred_path=path_pred)

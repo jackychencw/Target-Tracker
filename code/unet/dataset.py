@@ -18,12 +18,12 @@ class CatDataset(Dataset):
         id = 0
         for inputfilename in os.listdir(input_directory):
             file_path = input_directory + inputfilename
-            input_img = load_img(file_path, color_mode="grayscale")
+            input_img = load_img(file_path, color_mode='grayscale')
             if input_img is not None:
                 input_img = img_to_array(input_img)
                 input_img = resize(input_img, (int(im_height), int(im_width)))
                 new_input_img = torch.from_numpy(input_img)
-                self.X[id, ..., 0] = new_input_img.squeeze() / 255
+                self.X[id] = new_input_img / 255
             id += 1
         id = 0
         if os.path.exists(mask_directory) and len(os.listdir(mask_directory)) != 0:
