@@ -39,11 +39,13 @@ def create_deepface(image_size=IMAGE_SIZE, channels=CHANNELS, num_classes=NUM_CL
         lc2d_layer(filters=16, kernel_size=9, name='L4'),
         lc2d_layer(filters=16, kernel_size=7, strides=2, name='L5'),
         lc2d_layer(filters=16, kernel_size=5, name='L6'),
+        lc2d_layer(filters=16, kernel_size=3, name='L7'),
         keras.layers.Flatten(name='F0'),
         dense_layer(units=4096, activation=keras.activations.relu, name='F7'),
         keras.layers.Dropout(rate=0.5, name='D0'),
+        dense_layer(units=4096, activation=keras.activations.relu, name='F8'),
         dense_layer(units=num_classes,
-                    activation=keras.activations.softmax, name='F8')
+                    activation=keras.activations.softmax, name='F9')
     ], name='DeepFace')
     deepface.summary()
     sgd_opt = keras.optimizers.SGD(lr=learn_rate, momentum=momentum)
