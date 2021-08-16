@@ -1,5 +1,7 @@
 # Target Tracker
 
+https://www.youtube.com/watch?v=jZnI2N-kixI
+
 Members for this project: Yue Wang, Jue Wang, Ziqi Chen
 
 Tasks for this project
