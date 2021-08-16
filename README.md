@@ -1,6 +1,6 @@
 # Target Tracker
+[![Alt text](https://img.youtube.com/vi/jZnI2N-kixI/0.jpg)](https://www.youtube.com/watch?v=jZnI2N-kixI)
 
-https://www.youtube.com/watch?v=jZnI2N-kixI
 
 Members for this project: Yue Wang, Jue Wang, Ziqi Chen
 
