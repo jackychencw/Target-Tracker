@@ -1,4 +1,4 @@
-# csc420-target-tracker
+# Target Tracker
 
 Members for this project: Yue Wang, Jue Wang, Ziqi Chen
 
